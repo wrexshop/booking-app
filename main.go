@@ -7,6 +7,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 func main() {
@@ -42,6 +43,13 @@ func main() {
 		fmt.Println("Enter number of tickets:")
 		fmt.Scan(&userTickets)
 
+		// Handle invalid from the user input
+		if userTickets > remainingTickets {
+			fmt.Printf("There are only %v tickets remaining! So you cannot book %v tickets", remainingTickets, userTickets)
+			// Force the user to fill out the information once again by using "continue"
+			continue
+		}
+
 		remainingTickets = remainingTickets - userTickets
 		// bookings[0] = firstName+" "+lastName // adding to an array
 		bookings = append(bookings, firstName+" "+lastName)
@@ -53,9 +61,32 @@ func main() {
 
 		fmt.Printf("Thank you %v %v for booking %v tickets.\n", firstName, lastName, userTickets)
 		fmt.Printf("You will receive an email notification at %v.\n", email)
-		fmt.Printf("%v tickers remaining for %v.\n", remainingTickets, conferenceName)
+		fmt.Printf("%v tickets remaining for the %v.\n", remainingTickets, conferenceName)
 
-		fmt.Printf("These are all the bookings %v\n", bookings)
-	}
+		// Slice only for first names
+		firstNames := []string{}
 
-}
+		// returns two values the position and thing
+		// "range" is how we iterate through the array and slice
+		// "_" replaced the "index" as it is not used at all.
+		for _, booking := range bookings {
+
+			// This will split the names up. So it will have two values: first and last name
+			var full_name = strings.Fields(booking)
+
+			// We will only add the first name to the firstNames slice
+			firstNames = append(firstNames, full_name[0])
+		}
+
+		fmt.Printf("These are first names of bookings are: %v\n", firstNames)
+
+		// How many tickets are remainging
+		if remainingTickets == 0 {
+			// end the program
+			fmt.Printf("The %v is fully booked. Come back next year!\n", conferenceName)
+			break
+		}
+
+	} // main for loop
+
+} // main func
