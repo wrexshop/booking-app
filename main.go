@@ -8,6 +8,7 @@ package main
 import (
 	"booking-app/helper" // booking app is the path from the go.mod file
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -29,51 +30,53 @@ type UserData struct {
 	numberOfTickets uint
 }
 
+// Tell the main thread to wait for all actions to complete before exiting
+// By default the main func will exit
+var wg = sync.WaitGroup{}
+
 func main() {
 
 	greetUsers()
 
-	// Loop with a conditional check
-	// for remainingTickets > 0 && len(bookings) < 50
-	// for true is infiite loop is the same as for
-	for {
-		firstName, lastName, email, userTickets := getUserInput()
+	firstName, lastName, email, userTickets := getUserInput()
 
-		// The func returns 3 values
-		isValidName, isValidEmail, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, email, userTickets, remainingTickets)
+	// The func returns 3 values
+	isValidName, isValidEmail, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, email, userTickets, remainingTickets)
 
-		if isValidName && isValidEmail && isValidTicketNumber {
-			bookTicket(userTickets, firstName, lastName, email)
-			sendTicket(userTickets, firstName, lastName, email)
+	if isValidName && isValidEmail && isValidTicketNumber {
+		bookTicket(userTickets, firstName, lastName, email)
 
-			fmt.Printf("These are the first names of the attendees: %v.\n", getsFirstNames())
+		wg.Add(1)
+		// Concurrency! Simply by adding "go"
+		go sendTicket(userTickets, firstName, lastName, email)
 
-		} else if !isValidName || !isValidEmail || !isValidTicketNumber {
+		fmt.Printf("These are the first names of the attendees: %v.\n", getsFirstNames())
 
-			// We want to check all the values, hence the use of multiple ifs
-			if len(firstName) < 2 {
-				fmt.Printf("Your first name was invalid input, %v.\n", firstName)
-			}
-			if len(lastName) < 2 {
-				fmt.Printf("Your last name was invalid input, %v.\n", lastName)
-			}
-			if !isValidEmail {
-				fmt.Printf("Your email was invalid, %v.\n", email)
-			}
-			if !isValidTicketNumber {
-				fmt.Printf("The number of tickets was invalid, %v.\n", userTickets)
-			}
+	} else if !isValidName || !isValidEmail || !isValidTicketNumber {
 
-		} // end of if-else statement
-
-		// How many tickets are remainging
-		if remainingTickets == 0 {
-			// end the program
-			fmt.Printf("The %v is fully booked. Come back next year!\n", conferenceName)
-			break
+		// We want to check all the values, hence the use of multiple ifs
+		if len(firstName) < 2 {
+			fmt.Printf("Your first name was invalid input, %v.\n", firstName)
+		}
+		if len(lastName) < 2 {
+			fmt.Printf("Your last name was invalid input, %v.\n", lastName)
+		}
+		if !isValidEmail {
+			fmt.Printf("Your email was invalid, %v.\n", email)
+		}
+		if !isValidTicketNumber {
+			fmt.Printf("The number of tickets was invalid, %v.\n", userTickets)
 		}
 
-	} // end of main loop
+	} // end of if-else statement
+
+	// How many tickets are remainging
+	if remainingTickets == 0 {
+		// end the program
+		fmt.Printf("The %v is fully booked. Come back next year!\n", conferenceName)
+	}
+	// Tell the main func to wait for the concurrent action to complete
+	wg.Wait()
 
 	/*
 		city := "london"
@@ -179,4 +182,6 @@ func sendTicket(userTickets uint, firstName string, lastName string, email strin
 	fmt.Println("##########################")
 	fmt.Printf("Sending ticket:\n%v\nTo email address: %v.\n", message, email)
 	fmt.Println("##########################")
+	// The tell main func that this func has completed its action
+	wg.Done()
 }
