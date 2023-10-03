@@ -8,6 +8,7 @@ package main
 import (
 	"booking-app/helper" // booking app is the path from the go.mod file
 	"fmt"
+	"time"
 )
 
 // Package level variable so its only visbile the main package
@@ -43,7 +44,9 @@ func main() {
 
 		if isValidName && isValidEmail && isValidTicketNumber {
 			bookTicket(userTickets, firstName, lastName, email)
-			fmt.Printf("These are the first names of the attendess: %v.\n", getsFirstNames())
+			sendTicket(userTickets, firstName, lastName, email)
+
+			fmt.Printf("These are the first names of the attendees: %v.\n", getsFirstNames())
 
 		} else if !isValidName || !isValidEmail || !isValidTicketNumber {
 
@@ -162,9 +165,18 @@ func bookTicket(userTickets uint, firstName string, lastName string, email strin
 	}
 
 	bookings = append(bookings, userData)
-	fmt.Printf("List of bookings is: %v.\n", bookings)
+	fmt.Printf("List of bookings: %v.\n", bookings)
 
 	fmt.Printf("Thank you %v %v for booking %v tickets.\n", firstName, lastName, userTickets)
 	fmt.Printf("You will receive an email notification at %v.\n", email)
 	fmt.Printf("%v tickets remaining for the %v.\n", remainingTickets, conferenceName)
+}
+
+func sendTicket(userTickets uint, firstName string, lastName string, email string) {
+	time.Sleep(10 * time.Second)
+	// we can store the string into a variable using Sprintf
+	var message = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
+	fmt.Println("##########################")
+	fmt.Printf("Sending ticket:\n%v\nTo email address: %v.\n", message, email)
+	fmt.Println("##########################")
 }
