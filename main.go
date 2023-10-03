@@ -6,11 +6,12 @@
 package main
 
 import (
+	"booking-app/helper" // booking app is the path from the go.mod file
 	"fmt"
 	"strings"
 )
 
-// Package level variable
+// Package level variable so its only visbile the main package
 var conferenceName string = "Golang Conference"
 var remainingTickets uint = 50 //unit indicates there can only be positive numbers
 var bookings = []string{}
@@ -28,7 +29,7 @@ func main() {
 		firstName, lastName, email, userTickets := getUserInput()
 
 		// The func returns 3 values
-		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets)
+		isValidName, isValidEmail, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, email, userTickets, remainingTickets)
 
 		if isValidName && isValidEmail && isValidTicketNumber {
 			bookTicket(userTickets, firstName, lastName, email)
