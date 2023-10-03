@@ -10,14 +10,16 @@ import (
 	"strings"
 )
 
-func main() {
-	var conferenceName = "Golang Conference"
-	const conferenceTickets = 50
-	var remainingTickets uint = 50 //unit indicates there can only be positive numbers
-	//var bookings [50]string // we cannot mix the data types in the array
-	bookings := []string{}
+// Package level variable
+var conferenceName string = "Golang Conference"
+var remainingTickets uint = 50 //unit indicates there can only be positive numbers
+var bookings = []string{}
 
-	greetUsers(conferenceName, conferenceTickets, remainingTickets)
+const conferenceTickets int = 50
+
+func main() {
+
+	greetUsers()
 
 	// Loop with a conditional check
 	// for remainingTickets > 0 && len(bookings) < 50
@@ -26,9 +28,14 @@ func main() {
 		firstName, lastName, email, userTickets := getUserInput()
 
 		// The func returns 3 values
-		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets, remainingTickets)
+		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets)
 
-		if !isValidName || !isValidEmail || !isValidTicketNumber {
+		if isValidName && isValidEmail && isValidTicketNumber {
+			bookTicket(userTickets, firstName, lastName, email)
+			fmt.Printf("These are the first names of the attendess: %v.\n", getsFirstNames())
+
+		} else if !isValidName || !isValidEmail || !isValidTicketNumber {
+
 			// We want to check all the values, hence the use of multiple ifs
 			if len(firstName) < 2 {
 				fmt.Printf("Your first name was invalid input, %v.\n", firstName)
@@ -43,31 +50,14 @@ func main() {
 				fmt.Printf("The number of tickets was invalid, %v.\n", userTickets)
 			}
 
-		} else {
-			// Reduce the number of remaining tickets
-			remainingTickets = remainingTickets - userTickets
-
-			// bookings[0] = firstName+" "+lastName // adding to an array
-			bookings = append(bookings, firstName+" "+lastName)
-
-			fmt.Printf("The whole array: %v\n", bookings)
-			fmt.Printf("The first value: %v\n", bookings[0])
-			fmt.Printf("The array type: %T\n", bookings)
-			fmt.Printf("The array length: %v\n", len(bookings))
-
-			fmt.Printf("Thank you %v %v for booking %v tickets.\n", firstName, lastName, userTickets)
-			fmt.Printf("You will receive an email notification at %v.\n", email)
-			fmt.Printf("%v tickets remaining for the %v.\n", remainingTickets, conferenceName)
-
-			fmt.Printf("These are the first names of the attendess: %v.\n", getsFirstNames(bookings))
-
-			// How many tickets are remainging
-			if remainingTickets == 0 {
-				// end the program
-				fmt.Printf("The %v is fully booked. Come back next year!\n", conferenceName)
-				break
-			}
 		} // end of if-else statement
+
+		// How many tickets are remainging
+		if remainingTickets == 0 {
+			// end the program
+			fmt.Printf("The %v is fully booked. Come back next year!\n", conferenceName)
+			break
+		}
 
 	} // end of main loop
 
@@ -90,10 +80,7 @@ func main() {
 	*/
 } // end of main func
 
-func greetUsers(conferenceName string, conferenceTickets int, remainingTickets uint) {
-	// Use Println to print then move to new line
-	//fmt.Println("Welcome to", conferenceName, "booking application")
-
+func greetUsers() {
 	fmt.Printf("Welcome to the %v booking application.\n", conferenceName)
 	fmt.Printf("There are a total of %v tickets.\n", conferenceTickets)
 	fmt.Printf("There are %v tickets remaining.\n", remainingTickets)
@@ -101,7 +88,7 @@ func greetUsers(conferenceName string, conferenceTickets int, remainingTickets u
 }
 
 // the []string is the output and indicating its type
-func getsFirstNames(bookings []string) []string {
+func getsFirstNames() []string {
 	// Slice only for first names
 	firstNames := []string{}
 
@@ -119,22 +106,6 @@ func getsFirstNames(bookings []string) []string {
 	//fmt.Printf("These are first names of bookings are: %v\n", firstNames)
 	// Instead of printing the data.  We want the main func to print the dat
 	return firstNames
-}
-
-func validateUserInput(firstName string, lastName string, email string, userTickets uint, remainingTickets uint) (bool, bool, bool) {
-	// Validate first and last name. both must be atleast 2 chars
-	// both conditions must be true
-	isValidName := len(firstName) >= 2 && len(lastName) >= 2
-
-	// Validate the email entered is in a correct format
-	isValidEmail := strings.Contains(email, "@")
-
-	// Validate the number of tickets. Value must be a positive numbers
-	isValidTicketNumber := userTickets > 0 && userTickets <= remainingTickets
-
-	// Example of an OR conditional
-	//isValidCity := city == "las vegas" || city =="fallon"
-	return isValidName, isValidEmail, isValidTicketNumber
 }
 
 func getUserInput() (string, string, string, uint) {
@@ -156,4 +127,16 @@ func getUserInput() (string, string, string, uint) {
 	fmt.Scan(&userTickets)
 
 	return firstName, lastName, email, userTickets
+}
+
+func bookTicket(userTickets uint, firstName string, lastName string, email string) {
+	// Reduce the number of remaining tickets
+	remainingTickets = remainingTickets - userTickets
+
+	// bookings[0] = firstName+" "+lastName // adding to an array
+	bookings = append(bookings, firstName+" "+lastName)
+
+	fmt.Printf("Thank you %v %v for booking %v tickets.\n", firstName, lastName, userTickets)
+	fmt.Printf("You will receive an email notification at %v.\n", email)
+	fmt.Printf("%v tickets remaining for the %v.\n", remainingTickets, conferenceName)
 }
