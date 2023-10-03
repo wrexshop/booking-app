@@ -8,15 +8,25 @@ package main
 import (
 	"booking-app/helper" // booking app is the path from the go.mod file
 	"fmt"
-	"strings"
 )
 
 // Package level variable so its only visbile the main package
 var conferenceName string = "Golang Conference"
 var remainingTickets uint = 50 //unit indicates there can only be positive numbers
-var bookings = []string{}
+// var bookings = make([]map[string]string, 0) // This is a list of maps. because it a list we need to set a initial size. can be zero
+var bookings = make([]UserData, 0) // This is a list containing data based on the User Data struct
 
 const conferenceTickets int = 50
+
+// type = a custom type of data
+// similar to classes in other programming languages
+// but it cannot be inherited
+type UserData struct {
+	firstName       string
+	lastName        string
+	email           string
+	numberOfTickets uint
+}
 
 func main() {
 
@@ -97,15 +107,9 @@ func getsFirstNames() []string {
 	// "range" is how we iterate through the array and slice
 	// "_" replaced the "index" as it is not used at all.
 	for _, booking := range bookings {
-
-		// This will split the names up. So it will have two values: first and last name
-		var full_name = strings.Fields(booking)
-
-		// We will only add the first name to the firstNames slice
-		firstNames = append(firstNames, full_name[0])
+		firstNames = append(firstNames, booking.firstName)
 	}
-	//fmt.Printf("These are first names of bookings are: %v\n", firstNames)
-	// Instead of printing the data.  We want the main func to print the dat
+
 	return firstNames
 }
 
@@ -134,8 +138,31 @@ func bookTicket(userTickets uint, firstName string, lastName string, email strin
 	// Reduce the number of remaining tickets
 	remainingTickets = remainingTickets - userTickets
 
+	/* Using a map for a user data. This will be [email:x, firstName:x, lastName:x, numberOfTickets:x]
+	var userData = make(map[string]string)
+	// add data to the map
+	userData["firstName"] = firstName
+	userData["lastName"] = lastName
+	userData["email"] = email
+	// since the is configured to take strings, we must convert the integer to str
+	// the second parameter for FormatUint is base 10 / decimal
+	userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10)
+
 	// bookings[0] = firstName+" "+lastName // adding to an array
-	bookings = append(bookings, firstName+" "+lastName)
+	// bookings = append(bookings, firstName+" "+lastName) // adding to a slice
+	bookings = append(bookings, userData) // adding the map to the list
+	*/
+
+	// Using a struct to assign user data
+	var userData = UserData{
+		firstName:       firstName,
+		lastName:        lastName,
+		email:           email,
+		numberOfTickets: userTickets,
+	}
+
+	bookings = append(bookings, userData)
+	fmt.Printf("List of bookings is: %v.\n", bookings)
 
 	fmt.Printf("Thank you %v %v for booking %v tickets.\n", firstName, lastName, userTickets)
 	fmt.Printf("You will receive an email notification at %v.\n", email)
